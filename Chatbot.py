@@ -1,6 +1,5 @@
 import customtkinter as ctk
 import sqlite3
-import together
 import requests
 from tkinter import messagebox
 
@@ -20,36 +19,36 @@ class ChatbotApp:
     def __init__(self, root):
         self.root = root
         self.root.title("Login")
-        self.root.geometry("600x400")
+        self.root.geometry("600x500")  # Adjusted window size
         ctk.set_appearance_mode("light")
         ctk.set_default_color_theme("blue")
         self.current_user = None
         self.init_login_page()
         init_db()
+
     def view_history(self):
-    # Create a new window for chat history
+        # Create a new window for chat history
         history_window = ctk.CTkToplevel(self.root)
         history_window.title("Chat History")
         history_window.geometry("500x400")
 
-    # Chat History Display
+        # Chat History Display
         history_textbox = ctk.CTkTextbox(history_window, wrap="word", width=480, height=350)
         history_textbox.pack(pady=10, padx=10, fill="both", expand=True)
 
-    # Fetch history from database
+        # Fetch history from database
         conn = sqlite3.connect("chatbot.db")
         cursor = conn.cursor()
         cursor.execute("SELECT message, response FROM history WHERE username=?", (self.current_user,))
         rows = cursor.fetchall()
         conn.close()
 
-    # Display chat history
+        # Display chat history
         for message, response in rows:
             history_textbox.insert("end", f"You: {message}\n")
             history_textbox.insert("end", f"Bot: {response}\n\n")
-    
-        history_textbox.configure(state="disabled")  # Make read-only
 
+        history_textbox.configure(state="disabled")  # Make read-only
 
     # Login Page
     def init_login_page(self):
@@ -57,10 +56,10 @@ class ChatbotApp:
             widget.destroy()
 
         frame = ctk.CTkFrame(self.root)
-        frame.pack(expand=True)
+        frame.pack(expand=True, fill="both", padx=20, pady=20)
 
         ctk.CTkLabel(frame, text="Sign in", font=("Arial", 24)).pack(pady=10)
-        
+
         ctk.CTkLabel(frame, text="Username").pack()
         self.username_entry = ctk.CTkEntry(frame, width=250)
         self.username_entry.pack(pady=5)
@@ -70,23 +69,23 @@ class ChatbotApp:
         self.password_entry.pack(pady=5)
 
         ctk.CTkButton(frame, text="Sign in", command=self.login, width=250).pack(pady=10)
-        
+
         bottom_frame = ctk.CTkFrame(frame, fg_color="transparent")
         bottom_frame.pack(pady=10)
-        
+
         ctk.CTkLabel(bottom_frame, text="Don't have an account?").pack(side="left", padx=5)
         ctk.CTkButton(bottom_frame, text="Sign up", fg_color="transparent", text_color="blue", hover_color="#d3d3d3", command=self.init_register_page).pack(side="left")
-    
+
     # Register Page
     def init_register_page(self):
         for widget in self.root.winfo_children():
             widget.destroy()
 
         frame = ctk.CTkFrame(self.root)
-        frame.pack(expand=True)
+        frame.pack(expand=True, fill="both", padx=20, pady=20)
 
         ctk.CTkLabel(frame, text="Register", font=("Arial", 24)).pack(pady=10)
-        
+
         ctk.CTkLabel(frame, text="Username").pack()
         self.reg_username_entry = ctk.CTkEntry(frame, width=250)
         self.reg_username_entry.pack(pady=5)
@@ -94,15 +93,15 @@ class ChatbotApp:
         ctk.CTkLabel(frame, text="Password").pack()
         self.reg_password_entry = ctk.CTkEntry(frame, width=250, show="*")
         self.reg_password_entry.pack(pady=5)
-        
+
         ctk.CTkButton(frame, text="Register", command=self.register, width=250).pack(pady=10)
-        
+
         bottom_frame = ctk.CTkFrame(frame, fg_color="transparent")
         bottom_frame.pack(pady=10)
-        
+
         ctk.CTkLabel(bottom_frame, text="Already have an account?").pack(side="left", padx=5)
         ctk.CTkButton(bottom_frame, text="Login", text_color="blue", hover_color="#d3d3d3", command=self.init_login_page).pack(side="left", padx=5)
-    
+
     # Register new user
     def register(self):
         username = self.reg_username_entry.get()
@@ -124,7 +123,7 @@ class ChatbotApp:
             messagebox.showerror("Error", "Username already exists!")
         finally:
             conn.close()
-    
+
     # Login verification
     def login(self):
         username = self.username_entry.get()
@@ -134,14 +133,14 @@ class ChatbotApp:
         cursor.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
         user = cursor.fetchone()
         conn.close()
-        
+
         if user:
             self.current_user = username
             messagebox.showinfo("Success", "Login Successful!")
             self.init_chat_page()
         else:
             messagebox.showerror("Error", "Invalid credentials")
-    
+
     def init_chat_page(self):
         for widget in self.root.winfo_children():
             widget.destroy()
@@ -190,7 +189,7 @@ class ChatbotApp:
         # Store in history
         conn = sqlite3.connect("chatbot.db")
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO history (username, message, response) VALUES (?, ?, ?)", 
+        cursor.execute("INSERT INTO history (username, message, response) VALUES (?, ?, ?)",
                        (self.current_user, user_message, response))
         conn.commit()
         conn.close()
